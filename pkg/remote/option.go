@@ -26,7 +26,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/pkg/serviceinfo"
 	"github.com/cloudwego/kitex/pkg/streaming"
-	"github.com/cloudwego/kitex/pkg/streamx"
+	"github.com/cloudwego/kitex/pkg/utils"
 )
 
 // Option is used to pack the inbound and outbound handlers.
@@ -113,6 +113,9 @@ type ServerOption struct {
 
 	GRPCUnknownServiceHandler func(ctx context.Context, method string, stream streaming.Stream) error
 
+	// TTHeaderStreaming
+	TTHeaderStreamingOptions TTHeaderStreamingOptions
+
 	Option
 
 	// for thrift streaming, this is enabled by default
@@ -141,6 +144,18 @@ type ClientOption struct {
 	// for grpc streaming, only used for streaming call
 	GRPCStreamingCliHandlerFactory ClientTransHandlerFactory
 	GRPCStreamingConnPool          ConnPool
+
 	// for ttheader streaming, only used for streaming call
-	TTHeaderStreamingProvider streamx.ClientProvider
+	TTHeaderStreamingProvider ClientStreamFactory
+}
+
+type TTHeaderStreamingOption struct {
+	F func(o *TTHeaderStreamingOptions, di *utils.Slice)
+}
+
+type TTHeaderStreamingOptions struct {
+	// actually is []ttstream.ServerProviderOption,
+	// but we can't import ttstream here because of circular dependency,
+	// so we have to use interface{} here.
+	TransportOptions []interface{}
 }

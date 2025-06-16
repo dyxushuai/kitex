@@ -37,6 +37,7 @@ func apacheCodecAvailable(data interface{}) bool {
 // skipThriftStruct is used to read a struct bytes from trans when dataLen = 0,
 // so that we can use frugalUnmarshal or fastUnmarshal instead of apacheUnmarshal
 func skipThriftStruct(trans bufiox.Reader) ([]byte, error) {
+	// NOTE: If using go net, the assert will fail and execute the slow path.
 	p, ok := trans.(interface {
 		NetpollReader() netpoll.Reader
 	})
@@ -149,7 +150,7 @@ func (p *netpollSkipDecoder) skipnSlow(n int) error {
 
 	// trigger underlying conn to read more
 	if l := p.r.Len(); l > sz {
-		// read as much as possible, luckly, we will have a full buffer
+		// read as much as possible, luckily, we will have a full buffer
 		// then we no need to call p.Peek many times
 		sz = l
 	}
